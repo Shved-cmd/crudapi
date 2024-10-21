@@ -1,10 +1,25 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
+
+type Movie struct {
+	ID       string    `json:"id"`
+	Isbn     string    `json:"isbn"` // уникальный идентификатор фильма
+	Title    string    `json:"title"`
+	Director *Director `json:"director"`
+}
+
+type Director struct {
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+}
+
+var movies []Movie
 
 // CrudAPI
 
@@ -24,19 +39,16 @@ func main() {
 }
 
 func getMovies(w http.ResponseWriter, r *http.Request) {
-
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(movies)
 }
 
-type Movie struct {
-	ID       string    `json:"id"`
-	Isbn     string    `json:"isbn"` // уникальный идентификатор фильма
-	Title    string    `json:"title"`
-	Director *Director `json:"director"`
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			movies = append(movies[:index])
+		}
+	}
 }
-
-type Director struct {
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
-}
-
-var movies []Movie
